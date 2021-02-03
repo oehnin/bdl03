@@ -1,0 +1,20 @@
+# -----------------------------------------------------------------
+# environment
+SHELL=/bin/bash
+PATH=/usr/local/bin:/usr/bin:/bin:
+JDBC_HIVE2_URL='jdbc:hive2://cl-hpsec1-30-wo-01-lx-ub18.lxd:10000/'
+USE_DEPRECATED_CLI=false
+USER=bd01
+#USER=${LOGNAME}
+# -----------------------------------------------------------------
+# job definition
+# .---------------- minute (0 - 59)
+# |  .------------- hour (0 - 23)
+# |  |  .---------- day of month (1 - 31)
+# |  |  |  .------- month (1 - 12)
+# |  |  |  |  .---- day of week (0 - 6) (Sunday=0 or 7)
+# |  |  |  |  |
+# *  *  *  *  *  command to be executed
+# -----------------------------------------------------------------
+#*/1  *  *   *  *  env  > $HOME/env
+42 0  *   *  *  $HOME/repos/hive-etl-openaq-org/process-cron.sh
