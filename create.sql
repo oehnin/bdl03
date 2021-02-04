@@ -1,164 +1,97 @@
 -- --------------------------------------------------
--- 2019-03, Bruno Grossniklaus, https://github.com/it-gro
 
-CREATE DATABASE IF NOT EXISTS openaq_org_api;
-use openaq_org_api;
+CREATE DATABASE IF NOT EXISTS flightsDb;
+use flights;
 show tables;
 
 -- --------------------------------------------------
 -- tabula rasa for src_* tables
-DROP TABLE IF EXISTS openaq_org_api.src_cities_json;
-DROP TABLE IF EXISTS openaq_org_api.src_latest_location_json;
-DROP TABLE IF EXISTS openaq_org_api.src_latest_measurements_json;
+DROP TABLE IF EXISTS flights;
+DROP TABLE IF EXISTS airports;
+DROP TABLE IF EXISTS airlines;
 
 -- --------------------------------------------------
 -- DDL src_* Tables
-CREATE TABLE IF NOT EXISTS src_cities_json
+CREATE TABLE IF NOT EXISTS airports
   (
-      city_record STRING
+	  IATA_CODE	STRING
+	  AIRPORT	STRING
+	  CITY		STRING
+	  STATE		STRING
+	  COUNTRY	STRING
+	  LATITUDE	STRING
+	  LONGITUDE	STRING
   )
-  COMMENT 'https://api.openaq.org/v1/cities'
-  STORED AS TEXTFILE
-  -- location '/user/bd01/demo/etl/openaq_org_api/src_cities_json'
-;
-
-CREATE TABLE IF NOT EXISTS src_latest_location_json
-  (
-      latest_record STRING
-  )
-  COMMENT 'https://api.openaq.org/v1/latest'
-  STORED AS TEXTFILE
-  -- location '/user/bd01/demo/etl/openaq_org_api/src_latest_location_json'
-;
-
-CREATE TABLE IF NOT EXISTS src_latest_measurements_json
-  (
-      latest_record STRING
-  )
-  COMMENT 'https://api.openaq.org/v1/latest'
-  STORED AS TEXTFILE
-  -- location '/user/bd01/demo/etl/openaq_org_api/src_latest_measurements_json'
-;
-
-
--- --------------------------------------------------
--- DDL src_* Views
-DROP VIEW IF EXISTS src_cities;
-DROP VIEW IF EXISTS src_latest_location;
-DROP VIEW IF EXISTS src_latest_measurements;
-
--- so viele get_json_object aufrufe sind nich sonderlich effizient
--- aber die datenmenge ist überschaubar
--- die views werden materialisiert (siehe unten)
-CREATE VIEW IF NOT EXISTS src_cities AS
-  SELECT
-      get_json_object(city_record, '$.city')      AS city
-    , get_json_object(city_record, '$.country')   AS country
-    , get_json_object(city_record, '$.locations') AS locations
-    , get_json_object(city_record, '$.count')     AS count
-    FROM src_cities_json
-;
-
-CREATE VIEW IF NOT EXISTS src_latest_location AS
-  SELECT
-      get_json_object(latest_record, '$.location')               AS location
-    , get_json_object(latest_record, '$.city')                   AS city
-    , get_json_object(latest_record, '$.country')                AS country
-    , get_json_object(latest_record, '$.distance')               AS distance
-    , get_json_object(latest_record, '$.coordinates.latitude')   AS latitude
-    , get_json_object(latest_record, '$.coordinates.longitude')  AS longitude
-    FROM src_latest_location_json
-;
-
-CREATE VIEW IF NOT EXISTS src_latest_measurements AS
-  SELECT
-      get_json_object(latest_record, '$.location')                            AS location
-    , get_json_object(latest_record, '$.measurements.parameter')              AS parameter
-    , get_json_object(latest_record, '$.measurements.value')                  AS value
-    , get_json_object(latest_record, '$.measurements.lastUpdated')            AS lastUpdated
-    , get_json_object(latest_record, '$.measurements.unit')                   AS unit
-    , get_json_object(latest_record, '$.measurements.sourceName')             AS sourceName
-    , get_json_object(latest_record, '$.measurements.averagingPeriod.value')  AS averagingPeriodValue
-    , get_json_object(latest_record, '$.measurements.averagingPeriod.unit')   AS averagingPeriodUnit
-    FROM src_latest_measurements_json
-;
-
-
-DROP VIEW IF EXISTS src_latest;
--- nicht zu empfehlen
-CREATE VIEW IF NOT EXISTS src_latest AS
-  SELECT
-      l.location
-    , l.city
-    , l.country
-    , l.distance
-    , l.latitude
-    , l.longitude
-    , m.parameter
-    , m.value
-    , m.lastUpdated
-    , m.unit
-    , m.sourceName
-    , m.averagingPeriodValue
-    , m.averagingPeriodUnit
-    FROM src_latest_location l JOIN src_latest_measurements m ON (l.location = m.location)
-;
-
-
--- --------------------------------------------------
--- DDL core / main / ...
--- DROP => data loss
-# this table shall grow ...
-
-CREATE TABLE measurements
-  (
-      location_parameter   string
-    , location             string
-    , city                 string
-    , country              string
-    , distance             string
-    , latitude             string
-    , longitude            string
-    , parameter            string
-    , value                string
-    , lastUpdated          string
-    , unit                 string
-    , sourceName           string
-    , averagingPeriodValue string
-    , averagingPeriodUnit  string
-  )
-  COMMENT 'Source: https://api.openaq.org'
+  COMMENT 'airport.csvfrom kaggle.com'
   ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.OpenCSVSerde'
+    WITH SERDEPROPERTIES (
+   "separatorChar" = ",",
+)
   STORED AS TEXTFILE
+  -- location '/user/bd01/flights_2/airport.csv'
 ;
 
-
--- --------------------------------------------------
--- high water marks
-CREATE TABLE hwm_location_parameter
+CREATE TABLE IF NOT EXISTS airlines
   (
-      location_parameter   string
-    , lastUpdated          string
+      IATA_CODE STRING
+	  AIRLINE	STRING
   )
-  COMMENT 'max lastUpdated per location/parameter'
-  -- CLUSTERED BY (location_parameter) INTO 1 BUCKETS
-  -- STORED AS ORC
-  -- TBLPROPERTIES('transactional'='true')
+  COMMENT 'airlines.csvfrom kaggle.com'
+  ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.OpenCSVSerde'
+    WITH SERDEPROPERTIES (
+   "separatorChar" = ",",
+)
+  STORED AS TEXTFILE
+  -- location '/user/bd01/flights_2/airlines.csv'
 ;
 
+CREATE TABLE IF NOT EXISTS flights
+  (
+		YEAR					STRING
+		MONTH					STRING
+		DAY						STRING
+		DAY_OF_WEEK				STRING
+		AIRLINE					STRING
+		FLIGHT_NUMBER			STRING
+		TAIL_NUMBER				STRING
+		ORIGIN_AIRPORT			STRING
+		DESTINATION_AIRPORT		STRING
+		SCHEDULED_DEPARTURE		STRING
+		DEPARTURE_TIME			STRING
+		DEPARTURE_DELAY			STRING
+		TAXI_OUT				STRING
+		WHEELS_OFF				STRING
+		SCHEDULED_TIME			STRING
+		ELAPSED_TIME			STRING
+		AIR_TIME				STRING
+		DISTANCE				STRING
+		WHEELS_ON				STRING
+		TAXI_IN					STRING
+		SCHEDULED_ARRIVAL		STRING
+		ARRIVAL_TIME			STRING
+		ARRIVAL_DELAY			STRING
+		DIVERTED				STRING
+		CANCELLED				STRING
+		CANCELLATION_REASON		STRING
+		AIR_SYSTEM_DELAY		STRING
+		SECURITY_DELAY			STRING
+		AIRLINE_DELAY			STRING
+		LATE_AIRCRAFT_DELAY		STRING
+		WEATHER_DELAY			STRING
+  )
+  COMMENT 'flights.csvfrom kaggle.com'
+  ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.OpenCSVSerde'
+  WITH SERDEPROPERTIES (
+   "separatorChar" = ",",
+) 
+  STORED AS TEXTFILE
+  -- location '/user/bd01/flights_2/flights.csv'
+;
 
 -- --------------------------------------------------
 -- show infos
 show tables;
 
-DESCRIBE hwm_location_parameter        ;  
-DESCRIBE measurements                  ;  
-DESCRIBE src_cities                    ;  
-DESCRIBE src_cities_json               ;  
-DESCRIBE src_latest                    ;  
-DESCRIBE src_latest_location           ;  
-DESCRIBE src_latest_location_json      ;  
-DESCRIBE src_latest_measurements       ;  
-DESCRIBE src_latest_measurements_json  ;  
-
-DESCRIBE FORMATTED measurements;  
+DESCRIBE flights       			;  
+DESCRIBE airlines               ;  
+DESCRIBE airport                ;  

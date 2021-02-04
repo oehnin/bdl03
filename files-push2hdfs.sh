@@ -8,8 +8,8 @@ source ./config.sh
 
 ## ##################################################
 ## push files to hdfs
-hdfs dfs -ls /user/${USER}/load/
-hdfs dfs -put -f data/cities.json               /user/${USER}/load/
-hdfs dfs -put -f data/latest.location.json      /user/${USER}/load/
-hdfs dfs -put -f data/latest.measurements.json  /user/${USER}/load/
-hdfs dfs -ls /user/${USER}/load/
+hdfs dfs -ls /user/${USER}/flights_2/
+hdfs dfs -put -f flights.csv    /user/${USER}/flights_2/
+hdfs dfs -put -f airports.csv   /user/${USER}/flights_2/
+hdfs dfs -put -f airlines.csv  	/user/${USER}/flights_2/
+hdfs dfs -ls /user/${USER}/flights_2/

@@ -8,11 +8,11 @@ source ./config.sh
 
 ## ##################################################
 ## fetch
-./files-fetch.sh
+#./files-fetch.sh
 
 ## ##################################################
 ## convert latest
-./files-convert.sh
+#./files-convert.sh
 
 ## ##################################################
 ## push files to hdfs
