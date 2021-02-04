@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# 2019-03, Bruno Grossniklaus, https://github.com/it-gro
 
 export my_openaq_rest_api_url=https://api.openaq.org/v1
 
