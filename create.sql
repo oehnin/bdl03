@@ -94,4 +94,4 @@ show tables;
 
 DESCRIBE flights       			;  
 DESCRIBE airlines               ;  
-DESCRIBE airport                ;  
+DESCRIBE airports               ;  
