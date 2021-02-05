@@ -1,7 +1,7 @@
 -- --------------------------------------------------
 
 CREATE DATABASE IF NOT EXISTS flightsDb;
-use flights;
+use flightsDb;
 show tables;
 
 -- --------------------------------------------------
