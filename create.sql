@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS airports
   COMMENT 'airport.csvfrom kaggle.com'
   ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.OpenCSVSerde'
     WITH SERDEPROPERTIES (
-   "separatorChar" = ",",
+   "separatorChar" = ","
 )
   STORED AS TEXTFILE
   -- location '/user/bd01/flights_2/airport.csv'
@@ -39,7 +39,7 @@ CREATE TABLE IF NOT EXISTS airlines
   COMMENT 'airlines.csvfrom kaggle.com'
   ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.OpenCSVSerde'
     WITH SERDEPROPERTIES (
-   "separatorChar" = ",",
+   "separatorChar" = ","
 )
   STORED AS TEXTFILE
   -- location '/user/bd01/flights_2/airlines.csv'
@@ -82,7 +82,7 @@ CREATE TABLE IF NOT EXISTS flights
   COMMENT 'flights.csvfrom kaggle.com'
   ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.OpenCSVSerde'
   WITH SERDEPROPERTIES (
-   "separatorChar" = ",",
+   "separatorChar" = ","
 ) 
   STORED AS TEXTFILE
   -- location '/user/bd01/flights_2/flights.csv'
